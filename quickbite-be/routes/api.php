@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DeliveryController;
+use App\Http\Controllers\ShopOwnerController;
+use App\Http\Controllers\BuyerController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -30,5 +32,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders/{id}/cancel', [BuyerController::class, 'cancelOrder']);
 
     //prodavnica
-    
+    Route::get('/shop/shops/{shopId}/products', [ShopOwnerController::class, 'products']); 
+    Route::post('/shop/shops/{shopId}/products', [ShopOwnerController::class, 'createProduct']); 
+    Route::put('/shop/shops/{shopId}/products/{productId}', [ShopOwnerController::class, 'updateProduct']); 
+    Route::delete('/shop/shops/{shopId}/products/{productId}', [ShopOwnerController::class, 'deleteProduct']); 
+
+    Route::get('/shop/shops/{shopId}/orders', [ShopOwnerController::class, 'shopOrders']); 
+    Route::post('/shop/shops/{shopId}/orders/{orderId}/status', [ShopOwnerController::class, 'updateOrderStatus']);
 });
