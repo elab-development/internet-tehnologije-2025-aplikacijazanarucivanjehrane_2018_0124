@@ -4,11 +4,12 @@ export default function AuthCard({
   mode = "login", // login ili register
   loading = false,
   error = "",
-  onSubmit, // ({name,email,password}) 
+  defaults = { name: "", email: "", password: "" }, 
+  onSubmit, // ({name,email,password})
 }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [name, setName] = useState(defaults?.name || "");
+  const [email, setEmail] = useState(defaults?.email || "");
+  const [password, setPassword] = useState(defaults?.password || "");
 
   const isRegister = mode === "register";
 
@@ -18,7 +19,7 @@ export default function AuthCard({
   };
 
   return (
-    <div className="qb-card" style={{ maxWidth: 520, margin: "0 auto" }}>
+    <div className="qb-card qb-auth-card">
       <div className="qb-card-header">
         <h2 className="qb-h2">{isRegister ? "Registracija" : "Prijava"}</h2>
         <p className="qb-card-subtitle">
@@ -53,6 +54,7 @@ export default function AuthCard({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="petar@quickbite.test"
+              autoComplete="email"
             />
           </div>
 
@@ -64,6 +66,7 @@ export default function AuthCard({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••"
+              autoComplete={isRegister ? "new-password" : "current-password"}
             />
             <div className="qb-help">Minimalno 6 karaktera.</div>
           </div>
