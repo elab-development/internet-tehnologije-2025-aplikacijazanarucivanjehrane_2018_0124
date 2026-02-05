@@ -9,6 +9,7 @@ class Product extends Model
     protected $fillable = [
         'shop_id', 
         'name', 
+        'image_url',
         'price', 
         'is_available'
         ];
