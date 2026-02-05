@@ -21,5 +21,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/delivery/orders/{id}/delivered', [DeliveryController::class, 'delivered']);
 
     //kupac
+    Route::get('/shops', [BuyerController::class, 'shops']);                 
+    Route::get('/shops/{id}', [BuyerController::class, 'shopMenu']);         
+
+    Route::post('/orders', [BuyerController::class, 'createOrder']);         
+    Route::get('/orders/my', [BuyerController::class, 'myOrders']);          
+    Route::get('/orders/{id}', [BuyerController::class, 'orderDetails']);    
+    Route::post('/orders/{id}/cancel', [BuyerController::class, 'cancelOrder']);
+
+    //prodavnica
     
 });
