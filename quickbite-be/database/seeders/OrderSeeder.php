@@ -78,11 +78,11 @@ class OrderSeeder extends Seeder
                     deliveryLng: $addr['lng'],
                 );
 
-                // 2) Nova porudžbina (created) bez dostavljača.
+                // 2) Nova porudžbina bez dostavljača.
                 $this->createOrderWithItems(
                     buyer: $buyer,
                     shop: $shops->random(),
-                    status: 'created',
+                    status: 'ready_for_delivery',
                     deliveryUserId: null,
                     deliveryAddress: $addr['address'],
                     deliveryLat: $addr['lat'],
