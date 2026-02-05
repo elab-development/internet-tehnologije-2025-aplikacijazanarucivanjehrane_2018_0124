@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('shops', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->string('address');
+            $table->decimal('lat', 10, 7);
+            $table->decimal('lng', 10, 7);
             $table->timestamps();
         });
     }
