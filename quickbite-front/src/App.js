@@ -11,10 +11,10 @@ import MyShops from "./pages/MyShops";
 import Products from "./pages/Products";
 import ShopOrders from "./pages/ShopOrders";
 import ReadyOrders from "./pages/ReadyOrders";
-import Delivering from "./pages/Delivering";
 import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
 import ShopMenu from "./pages/ShopMenu";
+import OrderDetails from "./pages/OrderDetails";
 
 const TOKEN_KEY = "auth_token";
 const USER_KEY = "auth_user";
@@ -133,6 +133,16 @@ export default function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/my-orders/:id"
+          element={
+            <PrivateRoute token={token}>
+              <RoleRoute user={user} allowed={["buyer"]}>
+                <OrderDetails />
+              </RoleRoute>
+            </PrivateRoute>
+          }
+        />
         
 
 
@@ -179,16 +189,7 @@ export default function App() {
             </PrivateRoute>
           }
         />
-        <Route
-          path="/delivering"
-          element={
-            <PrivateRoute token={token}>
-              <RoleRoute user={user} allowed={["delivery"]}>
-                <Delivering />
-              </RoleRoute>
-            </PrivateRoute>
-          }
-        />
+        
 
         {/* Admin */}
         <Route
