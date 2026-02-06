@@ -58,6 +58,22 @@ class ShopOwnerController extends Controller
         ], 200);
     }
 
+    //koji su retorani vlasnika
+    public function myShops(Request $request)
+    {
+        if ($resp = $this->requireShop($request)) return $resp;
+
+        $shops = Shop::where('user_id', $request->user()->id)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Moje prodavnice.',
+            'data' => \App\Http\Resources\ShopResource::collection($shops),
+        ], 200);
+    }
+
     // Kreiranje proizvoda (u okviru svoje prodavnice).
     public function createProduct(Request $request, $shopId)
     {

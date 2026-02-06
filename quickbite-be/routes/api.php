@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders/{id}/cancel', [BuyerController::class, 'cancelOrder']);
 
     //prodavnica
+    Route::get('/shop/shops', [ShopOwnerController::class, 'myShops']);
     Route::get('/shop/shops/{shopId}/products', [ShopOwnerController::class, 'products']); 
     Route::post('/shop/shops/{shopId}/products', [ShopOwnerController::class, 'createProduct']); 
     Route::put('/shop/shops/{shopId}/products/{productId}', [ShopOwnerController::class, 'updateProduct']); 
