@@ -14,6 +14,7 @@ import ReadyOrders from "./pages/ReadyOrders";
 import Delivering from "./pages/Delivering";
 import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
+import ShopMenu from "./pages/ShopMenu";
 
 const TOKEN_KEY = "auth_token";
 const USER_KEY = "auth_user";
@@ -113,6 +114,16 @@ export default function App() {
           }
         />
         <Route
+          path="/shops/:id"
+          element={
+            <PrivateRoute token={token}>
+              <RoleRoute user={user} allowed={["buyer"]}>
+                <ShopMenu />
+              </RoleRoute>
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/my-orders"
           element={
             <PrivateRoute token={token}>
@@ -122,6 +133,8 @@ export default function App() {
             </PrivateRoute>
           }
         />
+        
+
 
         {/* Shop */}
         <Route
