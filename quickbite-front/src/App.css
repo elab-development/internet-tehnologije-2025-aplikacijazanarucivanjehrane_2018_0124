@@ -757,5 +757,36 @@ button, input, select, textarea { font: inherit; }
   color: var(--qb-muted);
 }
 
+.qb-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /*jedna pored druge */
+  gap: 12px;
+  align-items: stretch;
+}
+
+.qb-hero-imgwrap {
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--qb-border);
+  background: var(--qb-bg-soft);
+  box-shadow: var(--qb-shadow-soft);
+  height: 220px; /* možeš 180/200/220 */
+}
+
+.qb-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Na telefonu može jedna ispod druge */
+@media (max-width: 900px) {
+  .qb-hero-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 
 

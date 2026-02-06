@@ -157,18 +157,9 @@ export default function App() {
             </PrivateRoute>
           }
         />
+
         <Route
-          path="/products"
-          element={
-            <PrivateRoute token={token}>
-              <RoleRoute user={user} allowed={["shop"]}>
-                <Products />
-              </RoleRoute>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/shop-orders"
+          path="/shop-orders/:shopId"
           element={
             <PrivateRoute token={token}>
               <RoleRoute user={user} allowed={["shop"]}>
@@ -177,6 +168,18 @@ export default function App() {
             </PrivateRoute>
           }
         />
+
+        <Route
+          path="/products/:shopId"
+          element={
+            <PrivateRoute token={token}>
+              <RoleRoute user={user} allowed={["shop"]}>
+                <Products />
+              </RoleRoute>
+            </PrivateRoute>
+          }
+        />
+
 
         {/* Delivery */}
         <Route
