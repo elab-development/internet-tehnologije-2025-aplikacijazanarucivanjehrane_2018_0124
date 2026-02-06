@@ -1,29 +1,30 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthCard from "../components/AuthCard";
+import AuthCard from "../../components/AuthCard";
 import axios from "axios";
 
 
 const API_BASE = "http://127.0.0.1:8000";
 
-export default function Register({ onLoginSuccess }) {
+export default function Login({ onLoginSuccess }) {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); //da znamo da li se izvrsava fja
   const [formError, setFormError] = useState("");
 
-async function handleRegister({ name, email, password }) {
+//fja za login zvanje backenda
+ async function handleLogin({ email, password }) {
     setFormError("");
 
-    if (!name || !email || !password) {
-        setFormError("Popuni ime, email i lozinku.");
+    if (!email || !password) {
+        setFormError("Popuni email i lozinku.");
         return;
     }
 
     setLoading(true);
     try {
         const res = await axios.post(
-        `${API_BASE}/api/register`,
-        { name, email, password }, // role ne šaljemo => backend default buyer
+        `${API_BASE}/api/login`,
+        { email, password },
         { headers: { Accept: "application/json" } }
         );
 
@@ -31,10 +32,9 @@ async function handleRegister({ name, email, password }) {
 
         if (data?.success !== true) {
         const msg =
+            data?.errors?.auth?.[0] ||
             data?.message ||
-            data?.errors?.email?.[0] ||
-            data?.errors?.password?.[0] ||
-            "Registracija nije uspela.";
+            "Email ili lozinka nisu ispravni.";
         setFormError(msg);
         return;
         }
@@ -50,20 +50,19 @@ async function handleRegister({ name, email, password }) {
         onLoginSuccess?.({ token, user });
         navigate("/dashboard", { replace: true });
     } catch (err) {
+      // u slucaju greske ispisi sta je u responseu
         const apiData = err?.response?.data;
 
-        // Laravel validation 422 često vraća errors objekt.
         const msg =
+        apiData?.errors?.auth?.[0] ||
         apiData?.message ||
-        apiData?.errors?.email?.[0] ||
-        apiData?.errors?.password?.[0] ||
         "Ne mogu da se povežem sa serverom. Proveri backend.";
 
         setFormError(msg);
     } finally {
-        setLoading(false);
+        setLoading(false); //gotovo ucitavanje
     }
-}
+    }
 
 
   return (
@@ -71,15 +70,13 @@ async function handleRegister({ name, email, password }) {
       <div className="qb-container qb-auth-page">
         <div className="qb-auth-wrap">
           <AuthCard
-            mode="register"
+            mode="login"
             loading={loading}
             error={formError}
-            defaults={{ name: "Ana", email: "ana@quickbite.test", password: "quickbite" }} 
-            onSubmit={handleRegister}
+            defaults={{ email: "petar@quickbite.test", password: "quickbite" }} 
+            onSubmit={handleLogin}
           />
-          <p className="qb-small qb-mt-12 qb-text-center">
-            Nakon registracije bićeš automatski ulogovana.
-          </p>
+         
         </div>
       </div>
     </div>

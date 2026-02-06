@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import PageHeader from "../components/PageHeader";
-import DataTable from "../components/DataTable";
-import Modal from "../components/Modal";
+import PageHeader from "../../components/PageHeader";
+import DataTable from "../../components/DataTable";
+import Modal from "../../components/Modal";
 
 const API_BASE = "http://127.0.0.1:8000";
 const TOKEN_KEY = "auth_token";

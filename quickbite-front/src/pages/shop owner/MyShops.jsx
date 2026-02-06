@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import PageHeader from "../components/PageHeader";
+import PageHeader from "../../components/PageHeader";
 
 const API_BASE = "http://127.0.0.1:8000";
 const TOKEN_KEY = "auth_token";
@@ -12,10 +12,13 @@ export default function MyShops() {
   const [shops, setShops] = useState([]);
   const [pexels, setPexels] = useState([]); // 2 slike
 
+  //za ucitavanja slika i liste
   const [loading, setLoading] = useState(false);
   const [loadingImgs, setLoadingImgs] = useState(false);
   const [error, setError] = useState("");
 
+
+  //vracanje korisnikovih restorana sa backenda
   async function fetchMyShops() {
     setError("");
     setLoading(true);
@@ -41,6 +44,7 @@ export default function MyShops() {
     }
   }
 
+  //vracanje slika sa javnog pexels apija
   async function fetchPexelsImages() {
     const key = process.env.REACT_APP_PEXELS_API_KEY;
     if (!key) return;
@@ -63,6 +67,8 @@ export default function MyShops() {
     }
   }
 
+
+//kad se pokrene stranica, vracamo restorane i slike
   useEffect(() => {
     fetchMyShops();
     fetchPexelsImages();

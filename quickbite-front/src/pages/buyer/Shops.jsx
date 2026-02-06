@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import PageHeader from "../components/PageHeader";
+import PageHeader from "../../components/PageHeader";
 
 //sve od javnog apija sta nam treba
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";

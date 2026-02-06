@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import PageHeader from "../components/PageHeader";
-import DataTable from "../components/DataTable";
+import PageHeader from "../../components/PageHeader";
+import DataTable from "../../components/DataTable";
 
 const API_BASE = "http://127.0.0.1:8000";
 const TOKEN_KEY = "auth_token";
