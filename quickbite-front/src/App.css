@@ -577,3 +577,29 @@ button, input, select, textarea { font: inherit; }
   cursor: not-allowed;
 }
 
+.qb-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 980px) {
+  .qb-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .qb-grid { grid-template-columns: 1fr; }
+}
+
+.qb-card--click {
+  text-align: left;
+  cursor: pointer;
+  background: var(--qb-white);
+  border: 1px solid var(--qb-border);
+}
+
+.qb-card--click:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--qb-shadow-md);
+}
+
+
