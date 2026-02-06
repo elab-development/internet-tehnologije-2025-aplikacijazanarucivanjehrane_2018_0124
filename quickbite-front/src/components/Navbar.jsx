@@ -15,8 +15,6 @@ export default function Navbar({ user = null, onLogout, logoSrc }) {
     ],
     shop: [
       { to: "/my-shops", label: "Moje prodavnice" },
-      { to: "/products", label: "Proizvodi" },
-      { to: "/shop-orders", label: "Porudžbine" },
     ],
     delivery: [
       { to: "/ready-orders", label: "Spremno za dostavu" },

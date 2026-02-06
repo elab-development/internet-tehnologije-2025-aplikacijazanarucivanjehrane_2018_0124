@@ -6,19 +6,9 @@ export default function NotFound() {
     <div className="qb-page">
       <div className="qb-container">
         <PageHeader
-          title="Prodavnice"
-          subtitle="Ovde će biti lista prodavnica + filter (kasnije)."
+          title="U izradi"
+          subtitle="Ne pravimo za MVP"
         />
-
-        <div className="qb-section">
-          <div className="qb-card qb-card--soft">
-            <div className="qb-card-body">
-              <p className="qb-text qb-muted">
-                Prazna stranica. Sledeće dodajemo: fetch prodavnica, search/filter i prikaz kartica.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
