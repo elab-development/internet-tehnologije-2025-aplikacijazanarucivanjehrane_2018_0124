@@ -20,7 +20,6 @@ export default function Navbar({ user = null, onLogout, logoSrc }) {
     ],
     delivery: [
       { to: "/ready-orders", label: "Spremno za dostavu" },
-      { to: "/delivering", label: "U dostavi" },
     ],
     admin: [{ to: "/users", label: "Korisnici" }],
   };
