@@ -47,7 +47,7 @@ services:
 
   frontend:
     build:
-      context: ./quickbite-fe
+      context: ./quickbite-front
       dockerfile: Dockerfile
     container_name: quickbite-frontend
     depends_on:
