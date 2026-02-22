@@ -1,0 +1,916 @@
+openapi: 3.0.3
+
+info:
+  title: openapi
+  version: 1.0.0
+  description: >
+    OpenAPI specifikacija za QuickBite (Laravel + Sanctum). Base path: /api.
+    Swagger UI je podešen tako da mogu da unesu odvojene tokene za shop, buyer, delivery i admin ulogu.
+
+servers:
+  - url: /api
+    description: Laravel API base
+
+tags:
+  - name: Auth
+  - name: Buyer
+  - name: Shop
+  - name: Delivery
+
+components:
+  securitySchemes:
+    buyerBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: Token
+      description: "Buyer token. Header: Authorization: Bearer {token}."
+    shopBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: Token
+      description: "Shop token. Header: Authorization: Bearer {token}."
+    deliveryBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: Token
+      description: "Delivery token. Header: Authorization: Bearer {token}."
+    adminBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: Token
+      description: "Admin token. Header: Authorization: Bearer {token}."
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        success: { type: boolean, example: false }
+        message: { type: string, example: "Nemate dozvolu za ovu akciju." }
+      required: [success, message]
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "The given data was invalid."
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required: [message, errors]
+
+    SuccessNullResponse:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        message: { type: string, example: "Uspešno." }
+        data: { nullable: true }
+      required: [success, message, data]
+
+    User:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: "admin" }
+        email: { type: string, format: email, example: "admin@quickbite.test" }
+        role:
+          type: string
+          enum: [shop, buyer, delivery, admin]
+          example: admin
+      required: [id, name, email, role]
+
+    Product:
+      type: object
+      properties:
+        id: { type: integer, example: 10 }
+        shop_id: { type: integer, example: 2 }
+        name: { type: string, example: "Burger Classic" }
+        price: { type: number, example: 6.5 }
+        image_url: { type: string, nullable: true, example: "https://example.com/burger.png" }
+        is_available: { type: boolean, example: true }
+      required: [id, shop_id, name, price, is_available]
+
+    Shop:
+      type: object
+      properties:
+        id: { type: integer, example: 2 }
+        name: { type: string, example: "Mihailo Burger Bar" }
+        address: { type: string, nullable: true, example: "Knez Mihailova 1, Beograd" }
+        phone: { type: string, nullable: true, example: "+38161111222" }
+        is_open: { type: boolean, example: true }
+        owner:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/User"
+        products:
+          type: array
+          items: { $ref: "#/components/schemas/Product" }
+      required: [id, name, is_open, products]
+
+    OrderItem:
+      type: object
+      properties:
+        id: { type: integer, example: 501 }
+        quantity: { type: integer, example: 2 }
+        unit_price: { type: number, example: 6.5 }
+        subtotal: { type: number, example: 13.0 }
+        product:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/Product"
+      required: [id, quantity, unit_price, subtotal]
+
+    Order:
+      type: object
+      properties:
+        id: { type: integer, example: 1001 }
+        status:
+          type: string
+          enum: [pending, accepted, preparing, ready_for_delivery, delivering, delivered, cancelled]
+          example: pending
+        total_price: { type: number, example: 24.5 }
+        delivery_address: { type: string, nullable: true, example: "Bulevar kralja Aleksandra 73, Beograd" }
+        created_at: { type: string, format: date-time, example: "2026-02-16T10:00:00Z" }
+        shop:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/Shop"
+        buyer:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/User"
+        delivery:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/User"
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/OrderItem" }
+      required: [id, status, total_price, created_at, items]
+
+    AuthSuccessResponse:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        message: { type: string, example: "Prijava uspešna." }
+        data:
+          type: object
+          properties:
+            user: { $ref: "#/components/schemas/User" }
+            token: { type: string, example: "1|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }
+          required: [user, token]
+      required: [success, message, data]
+
+    MeSuccessResponse:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        message: { type: string, example: "Ulogovani korisnik." }
+        data:
+          type: object
+          properties:
+            user: { $ref: "#/components/schemas/User" }
+          required: [user]
+      required: [success, message, data]
+
+    ShopsListResponse:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        message: { type: string, example: "Lista restorana." }
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/Shop" }
+      required: [success, message, data]
+
+    ShopResponse:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        message: { type: string, example: "Detalji restorana." }
+        data: { $ref: "#/components/schemas/Shop" }
+      required: [success, message, data]
+
+    ProductsListResponse:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        message: { type: string, example: "Lista proizvoda." }
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/Product" }
+      required: [success, message, data]
+
+    ProductResponse:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        message: { type: string, example: "Proizvod." }
+        data: { $ref: "#/components/schemas/Product" }
+      required: [success, message, data]
+
+    OrdersListResponse:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        message: { type: string, example: "Lista porudžbina." }
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/Order" }
+      required: [success, message, data]
+
+    OrderResponse:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        message: { type: string, example: "Porudžbina." }
+        data: { $ref: "#/components/schemas/Order" }
+      required: [success, message, data]
+
+paths:
+  /register:
+    post:
+      tags: [Auth]
+      summary: Register (default buyer)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, minLength: 2, maxLength: 150 }
+                email: { type: string, format: email, maxLength: 150 }
+                password: { type: string, minLength: 6, maxLength: 255 }
+              required: [name, email, password]
+      responses:
+        "201":
+          description: Created (user + token)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSuccessResponse" }
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidationErrorResponse" }
+
+  /login:
+    post:
+      tags: [Auth]
+      summary: Login (shop / buyer / delivery / admin)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email, maxLength: 150 }
+                password: { type: string, maxLength: 255 }
+              required: [email, password]
+            examples:
+              login_admin:
+                summary: Login admin
+                value: { email: "admin@quickbite.test", password: "quickbite" }
+              login_delivery:
+                summary: Login delivery
+                value: { email: "aca@quickbite.test", password: "quickbite" }
+              login_shop:
+                summary: Login shop
+                value: { email: "mihailo@quickbite.test", password: "quickbite" }
+              login_buyer:
+                summary: Login buyer
+                value: { email: "petar@quickbite.test", password: "quickbite" }
+      responses:
+        "200":
+          description: Success (user + token)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSuccessResponse" }
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidationErrorResponse" }
+
+  /me:
+    get:
+      tags: [Auth]
+      summary: Get logged-in user (any role)
+      security:
+        - buyerBearer: []
+        - shopBearer: []
+        - deliveryBearer: []
+        - adminBearer: []
+      responses:
+        "200":
+          description: Me
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MeSuccessResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /logout:
+    post:
+      tags: [Auth]
+      summary: Logout (any role)
+      security:
+        - buyerBearer: []
+        - shopBearer: []
+        - deliveryBearer: []
+        - adminBearer: []
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SuccessNullResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /buyer/shops:
+    get:
+      tags: [Buyer]
+      summary: List shops (buyer)
+      security:
+        - buyerBearer: []
+      responses:
+        "200":
+          description: Shops list
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ShopsListResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not buyer)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /buyer/shops/{shopId}:
+    get:
+      tags: [Buyer]
+      summary: Shop menu (shop + products)
+      security:
+        - buyerBearer: []
+      parameters:
+        - name: shopId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Shop details
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ShopResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not buyer)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /buyer/orders:
+    post:
+      tags: [Buyer]
+      summary: Create order (buyer)
+      security:
+        - buyerBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                shop_id: { type: integer }
+                delivery_address: { type: string, maxLength: 255 }
+                delivery_lat: { type: number, nullable: true }
+                delivery_lng: { type: number, nullable: true }
+                items:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    properties:
+                      product_id: { type: integer }
+                      quantity: { type: integer, minimum: 1 }
+                    required: [product_id, quantity]
+              required: [shop_id, delivery_address, items]
+            examples:
+              create_order:
+                value:
+                  shop_id: 2
+                  delivery_address: "Bulevar kralja Aleksandra 73, Beograd"
+                  items:
+                    - { product_id: 10, quantity: 2 }
+                    - { product_id: 11, quantity: 1 }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrderResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not buyer)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidationErrorResponse" }
+
+    get:
+      tags: [Buyer]
+      summary: My orders (buyer)
+      security:
+        - buyerBearer: []
+      responses:
+        "200":
+          description: Orders list
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrdersListResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not buyer)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /buyer/orders/{orderId}:
+    get:
+      tags: [Buyer]
+      summary: Order details (buyer)
+      security:
+        - buyerBearer: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Order
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrderResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not buyer / not owner)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /buyer/orders/{orderId}/cancel:
+    post:
+      tags: [Buyer]
+      summary: Cancel order (buyer)
+      security:
+        - buyerBearer: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Cancelled (or unchanged if not allowed)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrderResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not buyer / not owner)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+    patch:
+      tags: [Buyer]
+      summary: Cancel order (buyer) - PATCH variant
+      security:
+        - buyerBearer: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Cancelled (or unchanged if not allowed)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrderResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not buyer / not owner)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /shop/shops:
+    get:
+      tags: [Shop]
+      summary: My shops (shop owner)
+      security:
+        - shopBearer: []
+      responses:
+        "200":
+          description: Shops list
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ShopsListResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not shop)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /shop/shops/{shopId}/products:
+    get:
+      tags: [Shop]
+      summary: List products for a shop (shop owner)
+      security:
+        - shopBearer: []
+      parameters:
+        - name: shopId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Products list
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProductsListResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not shop / not owner)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+    post:
+      tags: [Shop]
+      summary: Create product (shop owner)
+      security:
+        - shopBearer: []
+      parameters:
+        - name: shopId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, minLength: 2, maxLength: 120 }
+                price: { type: number, minimum: 0 }
+                image_url: { type: string, nullable: true, maxLength: 2048 }
+                is_available: { type: boolean, nullable: true }
+              required: [name, price]
+            examples:
+              create_product:
+                value:
+                  name: "Burger Classic"
+                  price: 6.5
+                  image_url: "https://example.com/burger.png"
+                  is_available: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProductResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not shop / not owner)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidationErrorResponse" }
+
+  /shop/shops/{shopId}/products/{productId}:
+    put:
+      tags: [Shop]
+      summary: Update product (shop owner)
+      security:
+        - shopBearer: []
+      parameters:
+        - name: shopId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: productId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: "PUT used as partial update (controller validates fields as 'sometimes')."
+              properties:
+                name: { type: string, minLength: 2, maxLength: 120 }
+                price: { type: number, minimum: 0 }
+                image_url: { type: string, nullable: true, maxLength: 2048 }
+                is_available: { type: boolean, nullable: true }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProductResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not shop / not owner)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidationErrorResponse" }
+
+    delete:
+      tags: [Shop]
+      summary: Delete product (shop owner)
+      security:
+        - shopBearer: []
+      parameters:
+        - name: shopId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: productId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SuccessNullResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not shop / not owner)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /shop/shops/{shopId}/orders:
+    get:
+      tags: [Shop]
+      summary: Orders for a shop (shop owner)
+      security:
+        - shopBearer: []
+      parameters:
+        - name: shopId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Orders list
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrdersListResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not shop / not owner)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /shop/shops/{shopId}/orders/{orderId}/status:
+    patch:
+      tags: [Shop]
+      summary: Update order status (shop owner)
+      security:
+        - shopBearer: []
+      parameters:
+        - name: shopId
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [accepted, preparing, ready_for_delivery, cancelled]
+              required: [status]
+            examples:
+              accepted:
+                value: { status: "accepted" }
+              preparing:
+                value: { status: "preparing" }
+              ready:
+                value: { status: "ready_for_delivery" }
+              cancelled:
+                value: { status: "cancelled" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrderResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not shop / not owner)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidationErrorResponse" }
+
+  /delivery/orders/ready:
+    get:
+      tags: [Delivery]
+      summary: Ready orders (delivery)
+      security:
+        - deliveryBearer: []
+      responses:
+        "200":
+          description: Orders list
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrdersListResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not delivery)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /delivery/orders/{orderId}/take:
+    post:
+      tags: [Delivery]
+      summary: Take an order for delivery (delivery)
+      security:
+        - deliveryBearer: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Taken (status -> delivering)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrderResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not delivery)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /delivery/orders/{orderId}/delivered:
+    post:
+      tags: [Delivery]
+      summary: Mark order delivered (delivery)
+      security:
+        - deliveryBearer: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Delivered (status -> delivered)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrderResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Forbidden (not delivery)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
